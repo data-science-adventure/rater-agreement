@@ -197,11 +197,11 @@ def generate_visualizations(kappa_data, label_dist, status_counts, expert_1, exp
     # 2. Gráfico de Barras de Distribución de Etiquetas
     plt.subplot(1, 3, 2)
     df_labels = pd.DataFrame([
-        {'Expert': '1', 'Label': l} for l in label_dist['E1']
+        {'Expert': expert_1, 'Label': l} for l in label_dist['E1']
     ] + [
-        {'Expert': '2', 'Label': l} for l in label_dist['E2']
+        {'Expert': expert_2, 'Label': l} for l in label_dist['E2']
     ] + [
-        {'Expert': '3', 'Label': l} for l in label_dist['E3']
+        {'Expert': expert_3, 'Label': l} for l in label_dist['E3']
     ])
     
     if not df_labels.empty:

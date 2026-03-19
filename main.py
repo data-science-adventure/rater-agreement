@@ -8,6 +8,7 @@ def run_pipeline():
         "modules/download_report.py",
         "modules/download_expert_report.py",
         "modules/compute_cohens_kappa.py",
+        "modules/upload_report.py",
         "modules/notify_results.py"
     ]
 
