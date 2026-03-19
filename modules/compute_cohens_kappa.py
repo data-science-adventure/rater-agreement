@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import cohen_kappa_score
 from collections import Counter
+from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -71,6 +72,7 @@ def process_annotations(file1, file2, file3):
     data1 = load_jsonl(file1)
     data2 = load_jsonl(file2)
     data3 = load_jsonl(file3)
+    expert_1, expert_2, expert_3 = extract_expert_names_from_path(file1, file2, file3)
     
     gold_standard = []
     conflicts = []
@@ -170,15 +172,15 @@ def process_annotations(file1, file2, file3):
         })
 
     # Exportar Archivos
-    pd.DataFrame(conflicts, columns=['sentence_id', 'type', 'text', 'offsets', 'expert_1', 'expert_2', 'expert_3', 'gold_label', 'status']).to_csv('report/conflict_report.csv', index=False)
+    pd.DataFrame(conflicts, columns=['sentence_id', 'type', 'text', 'offsets', expert_1, expert_2, expert_3, 'gold_label', 'status']).to_csv('report/conflict_report.csv', index=False)
     
-    with open('reports/gold_standard.jsonl', 'w', encoding='utf-8') as f:
+    with open('report/gold_standard.jsonl', 'w', encoding='utf-8') as f:
         for record in gold_standard:
             f.write(json.dumps(record, ensure_ascii=False) + '\n')
             
-    generate_visualizations(kappa_data, label_dist, status_counts)
+    generate_visualizations(kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3)
 
-def generate_visualizations(kappa_data, label_dist, status_counts):
+def generate_visualizations(kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3):
     """Genera las 3 visualizaciones solicitadas."""
     plt.figure(figsize=(18, 5))
     
@@ -189,7 +191,7 @@ def generate_visualizations(kappa_data, label_dist, status_counts):
     k_13 = cohen_kappa_score(kappa_data['e_1'], kappa_data['e_3'])
     
     kappa_matrix = np.array([[1.0, k_12, k_13], [k_12, 1.0, k_23], [k_13, k_23, 1.0]])
-    sns.heatmap(kappa_matrix, annot=True, cmap='Blues', xticklabels=['Exp 1', 'Exp 2', 'Exp 3'], yticklabels=['Exp 1', 'Exp 2', 'Exp 3'], vmin=0, vmax=1)
+    sns.heatmap(kappa_matrix, annot=True, cmap='Blues', xticklabels=[expert_1, expert_2, expert_3], yticklabels=[expert_1, expert_2, expert_3], vmin=0, vmax=1)
     plt.title("Pairwise Cohen's Kappa (Entities)")
     
     # 2. Gráfico de Barras de Distribución de Etiquetas
@@ -221,6 +223,10 @@ def generate_visualizations(kappa_data, label_dist, status_counts):
     plt.tight_layout()
     plt.savefig('report/annotation_report_visuals.png')
     plt.show()
+
+def extract_expert_names_from_path(file1, file2, file3):
+    return Path(file1).stem,  Path(file2).stem, Path(file3).stem
+
 
 # --- Ejecución ---
 # Para usarlo, simplemente llama a la función principal con tus archivos:
