@@ -4,8 +4,7 @@ from datetime import datetime
 import os
 now = datetime.now()
 load_dotenv()
-text_link = "https://drive.google.com/drive/folders/1FmW2cUlhmyTwWZ5Dk5nPr3bVrFcZiVPL?usp=drive_link"
-
+text_link = os.getenv("REPORT_FOLDER_LINK")
 url = os.getenv("SLACK_UML_ANNOTATOR_URL")
 formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")
 # The data payload
