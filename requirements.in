@@ -1,0 +1,23 @@
+urllib3<2
+# doccano client
+doccano-client
+
+# python-dotenv
+python-dotenv==1.1.1
+
+# Pandas
+pandas
+
+# Scikit learn
+scikit-learn
+
+# Seaborn
+seaborn
+
+# For ssh remote
+paramiko
+
+# Google APIs
+google-api-python-client 
+google-auth-httplib2 
+google-auth-oauthlib

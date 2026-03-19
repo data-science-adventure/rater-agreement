@@ -1,0 +1,83 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Byte-code files
+__pycache__/
+*.pyc
+
+# Distribution and packaging
+dist/
+build/
+*.egg-info/
+
+# Operating System files
+.DS_Store
+.vscode/
+.idea/
+
+# Project specifyc
+
+prompt.md
+data/*
+demo/*
+re-benchmark/*
+bert-ner-finetuned
+bert-ner-finetuned-final
+design_document_diagram.puml 
+design_document.txt
+.env
+cursos
+
+# Training model
+
+notebooks/ner_model_output/
+notebooks/srs-uml-14.jsonl
+notebooks/trainer_output/
+notebooks/training-2.ipynb
+notebooks/training.ipynb
+notebooks/ner_results/
+notebooks/results_srs_ner/
+notebooks/training/results_srs_ner
+notebooks/training/user_data.csv
+
+# Datasets
+datasets/source-files/promise-chunks/
+srs-uml-14-20[0-9]*.jsonl
+datasets/srs-uml-14-merged.jsonl
+datasets/shuffle-list.jsonl
+datasets/srs-random-sample-annotated.jsonl
+datasets/srs-uml-14-ner-annotated-test.jsonl
+datasets/shuffle-list-annotated.jsonl
+datasets/reports/*
+datasets/srs-random-sample.jsonl
+datasets/srs-filtered.jsonl
+datasets/srs-with-srl.jsonl
+datasets/srs.jsonl
+datasets/srs-pred.jsonl
+datasets/gold_file.jsonl
+datasets/srs-annotated copy.jsonl
+datasets/srs-annotated.jsonl
+datasets/srs-random-sample copy.jsonl
+datasets/srs-with-srl-test.jsonl
+datasets/annotators
+notebooks/exploration/topic.csv
+
+
+
+# Graph site generation
+lib
+datasets/scripts/create-kw copy.py
+graph_exports/
+
+# Schema validation
+schema_validation_errors.csv
+test_errors.csv
+validation_errors.csv
+
+SERVER.md
+credentials.json
+token.json
+annotators/
+report/
