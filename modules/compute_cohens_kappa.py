@@ -121,7 +121,8 @@ def process_annotations(file1, file2, file3):
             status_counts[status] += 1
             
             if status != 'Unanimous':
-                conflicts.append([rec1['sent_id'], rec1['text'][offset[0]:offset[1]], 'Entity', offset, lbl1, lbl2, lbl3, final_label, status])
+                span_text = rec1['text'][offset[0]:offset[1]]
+                conflicts.append([rec1['sent_id'], span_text, 'Entity', offset, span_text != span_text.strip(), lbl1, lbl2, lbl3, final_label, status])
                 
             if final_label != 'NONE':
                 new_ent_id = f"e{ent_counter}"
@@ -148,7 +149,7 @@ def process_annotations(file1, file2, file3):
             
             # Registrar como conflicto de relaciones si no es unánime (no sumamos al status_counts para no duplicar el peso, o sí, según preferencia)
             if status != 'Unanimous':
-                conflicts.append([rec1['sent_id'], resolve_relation_offset(rec1, offset),'Relation', offset, lbl1, lbl2, lbl3, final_label, status])
+                conflicts.append([rec1['sent_id'], resolve_relation_offset(rec1, offset),'Relation', offset, False, lbl1, lbl2, lbl3, final_label, status])
                 
             if final_label != 'NONE':
                 src_offset = (offset[0], offset[1])
@@ -172,7 +173,7 @@ def process_annotations(file1, file2, file3):
         })
 
     # Exportar Archivos
-    pd.DataFrame(conflicts, columns=['sentence_id', 'type', 'text', 'offsets', expert_1, expert_2, expert_3, 'gold_label', 'status']).to_csv('report/conflict_report.csv', index=False)
+    pd.DataFrame(conflicts, columns=['sentence_id', 'type', 'text', 'offsets','has_blanks', expert_1, expert_2, expert_3, 'gold_label', 'status']).to_csv('report/conflict_report.csv', index=False)
     
     with open('report/gold_standard.jsonl', 'w', encoding='utf-8') as f:
         for record in gold_standard:

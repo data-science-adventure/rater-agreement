@@ -81,3 +81,5 @@ credentials.json
 token.json
 annotators/
 report/
+borrar.py
+inegi.csv
