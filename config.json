@@ -1,0 +1,9 @@
+{
+    "compute_cohens_kappa": {
+        "report_output": "report",
+        "main_annotator": "annotators/admin.jsonl",
+        "second_annotator": "annotators/marcos.jsonl",
+        "third_annotator": "annotators/moises.jsonl"
+    },
+    "validate_shema": {}
+}

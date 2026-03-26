@@ -107,6 +107,8 @@ pyparsing==3.3.2
     # via
     #   httplib2
     #   matplotlib
+python-box==7.4.1
+    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
     #   matplotlib
