@@ -19,6 +19,7 @@ SECOND_ANNOTATOR = config.compute_cohens_kappa.second_annotator
 THIRD_ANNOTATOR = config.compute_cohens_kappa.third_annotator
 REPORT_OUTPUT = config.compute_cohens_kappa.report_output
 
+
 def load_jsonl(filepath):
     """Carga un archivo JSONL y devuelve una lista de diccionarios."""
     with open(filepath, "r", encoding="utf-8") as f:
@@ -243,9 +244,9 @@ def process_annotations(file1, file2, file3):
             "gold_label",
             "status",
         ],
-    ).to_csv("report/conflict_report.csv", index=False)
+    ).to_csv(f"{REPORT_OUTPUT}/conflict_report.csv", index=False)
 
-    with open("report/gold_standard.jsonl", "w", encoding="utf-8") as f:
+    with open(f"{REPORT_OUTPUT}/gold_standard.jsonl", "w", encoding="utf-8") as f:
         for record in gold_standard:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
@@ -309,7 +310,7 @@ def generate_visualizations(
     plt.title("Agreement Status Overview")
 
     plt.tight_layout()
-    plt.savefig("report/annotation_report_visuals.png")
+    plt.savefig(f"{REPORT_OUTPUT}/annotation_report_visuals.png")
     plt.show()
 
 
