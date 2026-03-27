@@ -23,5 +23,11 @@
             "annotators/moises.jsonl"
         ]
     },
-    "validate_uml_structure": {}
+    "validate_uml_structure": {
+        "source_files": [
+            "annotators/admin.jsonl",
+            "annotators/marcos.jsonl",
+            "annotators/moises.jsonl"
+        ]
+    }
 }
