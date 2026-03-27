@@ -1,37 +1,59 @@
-
-
 import os
-import zipfile
+import matplotlib.pyplot as plt
 from doccano_client import DoccanoClient
 from dotenv import load_dotenv
-load_dotenv()
 from util.config_util import ConfigUtil
 config = ConfigUtil.get_config()
 
-# 1. Configuration
+# 1. Configuration & Setup
+load_dotenv()
 URL = os.getenv("DOCCANO_URL")
 USERNAME = os.getenv("DOCCANO_USERNAME")
 PASSWORD = os.getenv("DOCCANO_PASSWORD")
-PROJECT_ID = config.main.project_id
-EXPORT_FORMAT = 'JSONL'  # Changed to JSONL
-TARGET_DIR = config.main.annotators_dir
+PROJECT_ID = config.main.project_id  # Replace with your actual project ID
 
-# 2. Initialize and login
+# NEW: Define which users to exclude dynamically
+# You can add as many names as you want here: ["heidi", "admin", "test_user"]
+EXCLUDE_USERS = config.download_expert_report.exclude_members 
+
 client = DoccanoClient(URL)
 client.login(username=USERNAME, password=PASSWORD)
 
-# 3. Create the target directory if it doesn't exist
-os.makedirs(TARGET_DIR, exist_ok=True)
+# 2. Fetch and Dynamic Filtering
+print(f"Fetching progress for project {PROJECT_ID}...")
+raw_progress = client.get_members_progress(project_id=PROJECT_ID)
 
-print(f"Starting download for project {PROJECT_ID} in {EXPORT_FORMAT} format...")
+# Filtering logic using 'not in' for multiple users
+member_progress = [
+    m for m in raw_progress 
+    if m.username not in EXCLUDE_USERS
+]
 
-# 4. Download the project
-# This triggers the export and downloads the zip to the current directory
-member_progress = client.get_members_progress(project_id=PROJECT_ID)
+# 3. Data Preparation for Plotting
+if not member_progress:
+    print("No data found after filtering. Skipping graph generation.")
+else:
+    usernames = [m.username for m in member_progress]
+    completed = [m.progress.completed for m in member_progress]
+    remaining = [m.progress.remaining for m in member_progress]
 
+    # 4. Create the Visualization
+    plt.figure(figsize=(10, 6))
+    
+    # Create the stacked bars
+    plt.bar(usernames, completed, label='Completed', color='#4CAF50')
+    plt.bar(usernames, remaining, bottom=completed, label='Remaining', color='#FFC107')
 
-print(member_progress)
-member_progress = filter(lambda p: p.username != 'heidi', member_progress)
+    plt.xlabel('Annotators')
+    plt.ylabel('Number of Tasks')
+    plt.title(f'Progress Report (Excluding: {", ".join(EXCLUDE_USERS)})')
+    plt.legend()
 
-for member in member_progress:
-    print(f"{member.username} - {member.progress.total}")
+    # 5. Export Logic
+    output_dir = "report"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "members_progress.png")
+
+    plt.savefig(output_path)
+    plt.close()
+    print(f"Success! Report saved to {output_path} for users: {usernames}")

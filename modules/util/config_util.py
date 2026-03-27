@@ -19,6 +19,11 @@ class CohenKappaConfig:
 
 
 @dataclass
+class DownloadExpertReportConfig:
+    exclude_members: List[str] = field(default_factory=list)
+
+
+@dataclass
 class UploadConfig:
     token_file: str
     credentials_file: str
@@ -39,11 +44,11 @@ class ValidateUmlConfig:
 class ProjectConfig:
     main: MainConfig
     compute_cohens_kappa: Optional[CohenKappaConfig] = None
+    download_expert_report: Optional[DownloadExpertReportConfig] = None
     upload_report: Optional[UploadConfig] = None
     validate_schema: Optional[ValidateSchemaConfig] = None
     validate_uml_structure: Optional[ValidateUmlConfig] = None
-    # Flexible placeholders for empty JSON objects
-    download_expert_report: dict = field(default_factory=dict)
+    # Flexible placeholders for remaining empty JSON objects
     download_report: dict = field(default_factory=dict)
     notify_results: dict = field(default_factory=dict)
 
@@ -67,13 +72,19 @@ class ConfigUtil:
         kappa_data = data.get("compute_cohens_kappa")
         kappa_obj = CohenKappaConfig(**kappa_data) if kappa_data else None
 
-        # 3. Map 'upload_report' (Updated with list)
-        upload_data = data.get("upload_report")
-        upload_obj = None
-        if upload_data and "token_file" in upload_data:
-            upload_obj = UploadConfig(**upload_data)
+        # 3. Map 'download_expert_report' (New)
+        expert_data = data.get("download_expert_report")
+        expert_obj = DownloadExpertReportConfig(**expert_data) if expert_data else None
 
-        # 4. Map 'validate_schema'
+        # 4. Map 'upload_report'
+        upload_data = data.get("upload_report")
+        upload_obj = (
+            UploadConfig(**upload_data)
+            if upload_data and "token_file" in upload_data
+            else None
+        )
+
+        # 5. Map 'validate_schema'
         schema_data = data.get("validate_schema")
         schema_obj = (
             ValidateSchemaConfig(**schema_data)
@@ -81,7 +92,7 @@ class ConfigUtil:
             else None
         )
 
-        # 5. Map 'validate_uml_structure'
+        # 6. Map 'validate_uml_structure'
         uml_data = data.get("validate_uml_structure")
         uml_obj = (
             ValidateUmlConfig(**uml_data)
@@ -89,14 +100,14 @@ class ConfigUtil:
             else None
         )
 
-        # 6. Return the composite object
+        # 7. Return the composite object
         return ProjectConfig(
             main=main_obj,
             compute_cohens_kappa=kappa_obj,
+            download_expert_report=expert_obj,
             upload_report=upload_obj,
             validate_schema=schema_obj,
             validate_uml_structure=uml_obj,
-            download_expert_report=data.get("download_expert_report", {}),
             download_report=data.get("download_report", {}),
             notify_results=data.get("notify_results", {}),
         )

@@ -9,7 +9,9 @@
         "second_annotator": "marcos.jsonl",
         "third_annotator": "moises.jsonl"
     },
-    "download_expert_report": {},
+    "download_expert_report": {
+        "exclude_members": ["heidi"]
+    },
     "download_report": {},
     "notify_results": {},
     "upload_report": {
