@@ -13,7 +13,7 @@ config = ConfigUtil.get_config()
 
 TOKEN_FILE = config.upload_report.token_file
 CREDENTIALS_FILE = config.upload_report.credentials_file
-REPORT_DIR = config.main.report_dir
+FILES_TO_UPLOAD = config.upload_report.files_to_upload
 
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 
@@ -77,7 +77,15 @@ def upload_or_overwrite(file_path, folder_id):
 
 if __name__ == "__main__":
     FOLDER_ID = os.getenv("REPORT_FOLDER_ID")
-    FILE_TO_UPLOAD = f"{REPORT_DIR}/conflict_report.csv"
-    PLOT_TO_UPLOAD = f"{REPORT_DIR}/annotation_report_visuals.png"
-    upload_or_overwrite(FILE_TO_UPLOAD, FOLDER_ID)
-    upload_or_overwrite(PLOT_TO_UPLOAD, FOLDER_ID)
+    for file_path in FILES_TO_UPLOAD:
+        # 1. Local Validation: Check if the file exists on your machine
+        if os.path.exists(file_path):
+            print(f"📄 Processing: {file_path}")
+            try:
+                upload_or_overwrite(file_path, FOLDER_ID)
+            except Exception as e:
+                print(f"❌ Failed to upload {file_path}. Error: {e}")
+        else:
+            # 2. Skip and Continue: Log the missing file and move to the next
+            print(f"⚠️ Skip: File not found at '{file_path}'. Moving to next file...")
+        print("-" * 30)

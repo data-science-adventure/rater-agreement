@@ -14,7 +14,17 @@
     "notify_results": {},
     "upload_report": {
         "token_file": "token.json",
-        "credentials_file": "credentials.json"
+        "credentials_file": "credentials.json",
+        "files_to_upload": [
+            "report/conflict_report.csv",
+            "report/annotation_report_visuals.png",
+            "report/schema_errors_admin.csv",
+            "report/schema_errors_marcos.csv",
+            "report/schema_errors_moises.csv",
+            "report/sis_errors_admin.csv",
+            "report/sis_errors_marcos.csv",
+            "report/sis_errors_moises.csv"
+        ]
     },
     "validate_schema": {
         "source_files": [
