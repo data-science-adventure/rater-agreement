@@ -20,6 +20,7 @@
         "files_to_upload": [
             "report/conflict_report.csv",
             "report/annotation_report_visuals.png",
+            "report/members_progress.png",
             "report/schema_errors_admin.csv",
             "report/schema_errors_marcos.csv",
             "report/schema_errors_moises.csv",

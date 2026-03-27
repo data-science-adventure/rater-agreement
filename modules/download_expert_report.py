@@ -55,5 +55,6 @@ else:
     output_path = os.path.join(output_dir, "members_progress.png")
 
     plt.savefig(output_path)
+    plt.show()
     plt.close()
     print(f"Success! Report saved to {output_path} for users: {usernames}")
