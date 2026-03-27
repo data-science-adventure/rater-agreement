@@ -1,7 +1,8 @@
 
 ## Features
 
-- [ ] Adecuate the `download_expert_report.py` to create expert report
+- [x] Adecuate the `upload_report.py` to upload files in Google sheet Mimetype
+- [x] Adecuate the `download_expert_report.py` to create expert report
 - [x] Integrate validate uml structure module
 - [x] Integrate validate schema module
 - [x] Integrate upload report into Google drive folder module
