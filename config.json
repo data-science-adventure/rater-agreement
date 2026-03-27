@@ -16,6 +16,12 @@
         "token_file": "token.json",
         "credentials_file": "credentials.json"
     },
-    "validate_schema": {},
+    "validate_schema": {
+        "source_files": [
+            "annotators/admin.jsonl",
+            "annotators/marcos.jsonl",
+            "annotators/moises.jsonl"
+        ]
+    },
     "validate_uml_structure": {}
 }

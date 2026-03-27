@@ -1,18 +1,25 @@
 import json
 import csv
 import os
+from pathlib import Path
+
 from util.uml_ontology import UMLOntology
+
+from util.config_util import ConfigUtil
+
+config = ConfigUtil.get_config()
 
 ontology = UMLOntology()
 # ==========================================
 # 1. CONFIGURATION & TAXONOMY
 # ==========================================
-INPUT_PATH = "annotators/moises.jsonl"
-ERROR_LOG_PATH = "report/validation_errors.csv"
+SOURCE_FILES = config.validate_schema.source_files
+REPORT_DIR = config.main.report_dir
 
 PERMITTED_LABELS = ontology.get_entities()
 
 PERMITTED_RELATIONS = ontology.get_relations()
+
 
 class UMLValidator:
     def __init__(self, input_path, error_path):
@@ -129,7 +136,7 @@ class UMLValidator:
                 )
                 continue
 
-            if(ent.get("text") != None):
+            if ent.get("text") != None:
                 expected_text = ent.get("text")
                 actual_slice = text[start:end]
                 if actual_slice != expected_text:
@@ -182,7 +189,7 @@ class UMLValidator:
 
     def _print_summary(self):
         print("\n" + "=" * 50)
-        print("📊 VALIDATION REPORT")
+        print("📊 SCHEMA VALIDATION REPORT")
         print("=" * 50)
         print(f"✅ Total Records Scanned: {self.stats['records_processed']}")
         print(f"❌ Total Errors Flagged:   {self.stats['errors_found']}")
@@ -192,5 +199,9 @@ class UMLValidator:
 
 
 if __name__ == "__main__":
-    validator = UMLValidator(INPUT_PATH, ERROR_LOG_PATH)
-    validator.validate_dataset()
+
+    for input_path in SOURCE_FILES:
+        file_name = Path(input_path).stem
+        error_log_path = f"{REPORT_DIR}/schema_errors_{file_name}.csv"
+        validator = UMLValidator(input_path, error_log_path)
+        validator.validate_dataset()
