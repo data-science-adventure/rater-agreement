@@ -13,11 +13,12 @@ from util.config_util import ConfigUtil
 
 load_dotenv()
 config = ConfigUtil.get_config()
+ANNOTATORS_DIR = config.main.annotators_dir
 
-MAIN_ANNOTATOR = config.compute_cohens_kappa.main_annotator
-SECOND_ANNOTATOR = config.compute_cohens_kappa.second_annotator
-THIRD_ANNOTATOR = config.compute_cohens_kappa.third_annotator
-REPORT_OUTPUT = config.compute_cohens_kappa.report_output
+MAIN_ANNOTATOR = ANNOTATORS_DIR + "/" + config.compute_cohens_kappa.main_annotator
+SECOND_ANNOTATOR = ANNOTATORS_DIR + "/" + config.compute_cohens_kappa.second_annotator
+THIRD_ANNOTATOR = ANNOTATORS_DIR + "/" + config.compute_cohens_kappa.third_annotator
+REPORT_OUTPUT = config.main.report_dir
 
 
 def load_jsonl(filepath):

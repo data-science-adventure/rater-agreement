@@ -5,15 +5,16 @@ import zipfile
 from doccano_client import DoccanoClient
 from dotenv import load_dotenv
 load_dotenv()
-
+from util.config_util import ConfigUtil
+config = ConfigUtil.get_config()
 
 # 1. Configuration
 URL = os.getenv("DOCCANO_URL")
 USERNAME = os.getenv("DOCCANO_USERNAME")
 PASSWORD = os.getenv("DOCCANO_PASSWORD")
-PROJECT_ID = 1
+PROJECT_ID = config.main.project_id
 EXPORT_FORMAT = 'JSONL'  # Changed to JSONL
-TARGET_DIR = 'annotators'
+TARGET_DIR = config.main.annotators_dir
 
 # 2. Initialize and login
 client = DoccanoClient(URL)

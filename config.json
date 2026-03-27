@@ -1,9 +1,21 @@
 {
-    "compute_cohens_kappa": {
-        "report_output": "report",
-        "main_annotator": "annotators/admin.jsonl",
-        "second_annotator": "annotators/marcos.jsonl",
-        "third_annotator": "annotators/moises.jsonl"
+    "main": {
+        "report_dir": "report",
+        "annotators_dir": "annotators",
+        "project_id": 1
     },
-    "validate_shema": {}
+    "compute_cohens_kappa": {
+        "main_annotator": "admin.jsonl",
+        "second_annotator": "marcos.jsonl",
+        "third_annotator": "moises.jsonl"
+    },
+    "download_expert_report": {},
+    "download_report": {},
+    "notify_results": {},
+    "upload_report": {
+        "token_file": "token.json",
+        "credentials_file": "credentials.json"
+    },
+    "validate_schema": {},
+    "validate_uml_structure": {}
 }
