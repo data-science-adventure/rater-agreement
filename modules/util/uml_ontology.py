@@ -25,11 +25,11 @@ class UMLOntology:
             ("ACTOR", "FLOAT_ATTRIBUTE"),
         ],
         "DEPENDS_ON": [("CLASS", "CLASS")],
-        "ASSOCIATION": [("CLASS", "CLASS")],
+        "ASSOCIATION": [("CLASS", "CLASS"), ("ACTOR", "CLASS")],
         "PART_OF": [("CLASS", "CLASS")],
-        "ONE_TO_ONE_ASSOCIATION": [("CLASS", "CLASS")],
-        "ONE_TO_MANY_ASSOCIATION": [("CLASS", "CLASS")],
-        "MANY_TO_MANY_ASSOCIATION": [("CLASS", "CLASS")],
+        "ONE_TO_ONE_ASSOCIATION": [("CLASS", "CLASS"), ("ACTOR", "CLASS")],
+        "ONE_TO_MANY_ASSOCIATION": [("CLASS", "CLASS"), ("ACTOR", "CLASS")],
+        "MANY_TO_MANY_ASSOCIATION": [("CLASS", "CLASS"), ("ACTOR", "CLASS")],
     }
 
     def get_valid_relations(self):

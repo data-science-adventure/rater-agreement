@@ -1,13 +1,14 @@
 import subprocess
 import sys
 import time
-import os
 
 def run_pipeline():
     scripts = [
         "modules/download_report.py",
         "modules/download_expert_report.py",
         "modules/compute_cohens_kappa.py",
+        "modules/validate_schema.py",
+        "modules/validate_uml_structure.py",
         "modules/upload_report.py",
         "modules/notify_results.py"
     ]
