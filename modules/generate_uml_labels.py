@@ -14,6 +14,9 @@ GSHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out
 # CONFIGURABLE: Choose which column to map to the "desc" field
 # Options: "Official definition", "Alternative definition", "Questions", "Other names"
 DESC_SOURCE_COLUMN = "Description"
+OFFICIAL_DEFINITION_SOURCE_COLUMN = "Official definition"
+ALTERNATIVE_DEFINITION_SOURCE_COLUMN = "Alternative definition"
+QUESTION_SOURCE_COLUMN = "Question"
 
 OUTPUT_FILE = "ontology/uml_labels.py"
 
@@ -36,11 +39,17 @@ def generate_uml_labels():
             item_type = str(row["Type"]).strip().capitalize()
             # Handle potential empty cells in the description column
             description = str(row[DESC_SOURCE_COLUMN]).strip() if pd.notna(row[DESC_SOURCE_COLUMN]) else item_id.lower()
+            oficial_definition = str(row[OFFICIAL_DEFINITION_SOURCE_COLUMN]).strip() if pd.notna(row[OFFICIAL_DEFINITION_SOURCE_COLUMN]) else item_id.lower()
+            alternative_definition = str(row[ALTERNATIVE_DEFINITION_SOURCE_COLUMN]).strip() if pd.notna(row[ALTERNATIVE_DEFINITION_SOURCE_COLUMN]) else item_id.lower()
+            question = str(row[QUESTION_SOURCE_COLUMN]).strip() if pd.notna(row[QUESTION_SOURCE_COLUMN]) else item_id.lower()
 
             entry = {
                 "id": item_id,
                 "name": item_id.lower(),
-                "desc": description
+                "desc": description,
+                "oficial_definition": oficial_definition,
+                "alternative_definition": alternative_definition,
+                "question": question,
             }
 
             if item_type == "Entity":
