@@ -7,7 +7,7 @@ from util.config_util import ConfigUtil
 
 config = ConfigUtil.get_config()
 
-ontology = UMLOntology.load_from_json("ontology.json")
+ontology = UMLOntology.load_from_json("ontology/ontology.json")
 
 SOURCE_FILES = config.validate_uml_structure.source_files
 REPORT_DIR = config.main.report_dir
