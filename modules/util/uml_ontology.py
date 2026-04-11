@@ -50,6 +50,52 @@ class UMLOntology:
         print(f"Total Entities: {len(self.get_entities())}")
         print(f"Total Relations: {len(self.get_relations())}")
         print("=" * 50 + "\n")
+    
+    def validate_triplet(self, source: str, relation: str, target: str) -> bool:
+        """
+        Checks if a specific relationship triplet is valid according to the ontology.
+        Usage: ontology.validate_triplet("ACTOR", "PERFORMS", "USE_CASE") -> True
+        """
+        source, relation, target = source.upper(), relation.upper(), target.upper()
+
+        # 1. Check if the relation exists at all
+        if relation not in self.VALID_RELATIONS:
+            return False
+
+        # 2. Check if the (source, target) pair is allowed for this relation
+        allowed_pairs = self.VALID_RELATIONS[relation]
+        return (source, target) in allowed_pairs
+    
+    def search_by_entity(self, entity_name: str):
+        """Finds and prints all relations where the entity is a source or a target."""
+        entity_name = entity_name.upper()
+        results_as_source = []
+        results_as_target = []
+
+        for rel, pairs in self.VALID_RELATIONS.items():
+            for src, tgt in pairs:
+                if src == entity_name:
+                    results_as_source.append((rel, tgt))
+                if tgt == entity_name:
+                    results_as_target.append((rel, src))
+
+        print(f"\n🔍 Search Results for entity: **{entity_name}**")
+        print("="*50)
+        if not results_as_source and not results_as_target:
+            print(f"No relations found for '{entity_name}'.")
+            return
+
+        if results_as_source:
+            print(f"As SOURCE (Initiator):")
+            for rel, tgt in sorted(set(results_as_source)):
+                print(f"  - [{rel}] → {tgt}")
+        
+        print("-" * 25)
+        if results_as_target:
+            print(f"As TARGET (Receiver):")
+            for rel, src in sorted(set(results_as_target)):
+                print(f"  - {src} → [{rel}]")
+        print("="*50 + "\n")
 
     def get_valid_relations(self):
         return self.VALID_RELATIONS
