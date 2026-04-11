@@ -73,3 +73,18 @@ Formal Summary Table
 | **Hierarchical**          | `IS_A`        | Any        | Same Type  | Specialization/Inheritance. |
 | **Architectural**         | `CONTAINS`    | Boundary   | Use Case   | Scope definition.           |
 | **Relational**            | `PART_OF`     | Class      | Class      | Aggregation/Composition.    |
+
+
+### UML **Diagram Interpretation Guide**
+
+here is how the UML symbols were selected to represent the semantic meaning of your relations:
+
+- **Generalization (`<|--`)**: Used for `IS_A`. This represents inheritance, such as a specific type of `ACTOR` inheriting from a general `ACTOR`.    
+- **Composition (`*--`)**: Used for `OWNS` and `CONTAINS`. This implies a strong "part-of" relationship where the child (like a `METHOD` or `ATTRIBUTE`) cannot logically exist without the parent (`CLASS`).
+- **Aggregation (`o--`)**: Used for `PART_OF`. This represents a weaker "has-a" relationship between two `CLASS` entities.
+- **Dependency (`..>`)**: Used for `DEPENDS_ON`, `INCLUDE`, and `EXTENDS`. This shows that one entity relies on the definition or behavior of another.
+    
+- **Association Multiplicity**:
+    - **One-to-One**: Labeled with `"1"` on both ends.
+    - **One-to-Many**: Labeled with `"1"` and `"*"` (many).
+    - **Many-to-Many**: Labeled with `"*"` on both ends.
