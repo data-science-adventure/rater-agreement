@@ -1,11 +1,27 @@
 import os
-import sys
 from modules.util.uml_ontology import UMLOntology
 # Import your generator script (assuming it's named sync_ontology.py)
 # import sync_ontology 
 
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
+
+def export_to_dot(ontology):
+    """Generates a Graphviz DOT file for visualization."""
+    output_path = "ontology/ontology_map.dot"
+    with open(output_path, "w") as f:
+        f.write("digraph UML_Ontology {\n")
+        f.write('  rankdir=LR;\n') # Left to Right layout
+        f.write('  node [shape=box, style=filled, color=lightblue, fontname="Arial"];\n')
+        f.write('  edge [fontname="Arial", fontsize=10];\n\n')
+
+        for rel, pairs in ontology.get_valid_relations().items():
+            for src, tgt in pairs:
+                f.write(f'  "{src}" -> "{tgt}" [label="{rel}"];\n')
+        
+        f.write("}\n")
+    print(f"\n✅ DOT file generated at: {output_path}")
+    print("💡 To view it, run: dot -Tpng ontology/ontology_map.dot -o ontology_map.png")
 
 def main_menu():
     # Load the ontology
@@ -25,6 +41,7 @@ def main_menu():
         print("4. ✅ Validate a Triplet (S-R-T)")
         print("5. 🔍 Search by Entity Name")
         print("6. 🔄 Sync from Google Sheets (Definitions)")
+        print("7. 🎨 Export Visual Map (DOT file)")
         print("0. 🚪 Exit")
         print("═"*40)
 
@@ -65,6 +82,9 @@ def main_menu():
             # Then reload the ontology
             # ontology = UMLOntology.load_from_json("ontology/ontology.json")
             print("Done! (Ensure sync logic is imported in main.py)")
+
+        elif choice == '7':
+            export_to_dot(ontology)
 
         elif choice == '0':
             print("Goodbye!")
