@@ -9,9 +9,8 @@ from util.uml_ontology import UMLOntology
 # ==========================================
 SHEET_ID = "1pNVXKtrbsLYJ6ROoflN8Wodxw_b7CMhsSbnYKNApdIc"
 LABELS_SHEET = "Labels"
-RULES_SHEET = "Indentification_rules"  # As requested
+RULES_SHEET = "Indentification_rules" 
 
-# URLs for CSV export per sheet
 BASE_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:csv"
 LABELS_URL = f"{BASE_URL}&sheet={LABELS_SHEET}"
 RULES_URL = f"{BASE_URL}&sheet={RULES_SHEET}"
@@ -22,10 +21,9 @@ DEFINITIONS_FILE = os.path.join(OUTPUT_DIR, "definitions.json")
 LOG_FILE = os.path.join(OUTPUT_DIR, "validation_log.txt")
 
 def generate_strict_definitions():
-    print(f"📥 Loading logic from {ONTOLOGY_FILE}...")
+    print(f"🏛️ Initializing logic from {ONTOLOGY_FILE}...")
     
     try:
-        # 2. Load Logic Source of Truth
         if not os.path.exists(ONTOLOGY_FILE):
             raise FileNotFoundError(f"Critical Error: {ONTOLOGY_FILE} is missing.")
             
@@ -33,20 +31,24 @@ def generate_strict_definitions():
         allowed_entities = ontology.get_entities()
         allowed_relations = ontology.get_relations()
 
-        # 3. Read Identification Rules Sheet First
-        print(f"📥 Fetching Identification Rules...")
+        # 2. Read Rules Sheet and Clean Data
+        print(f"📥 Fetching and Trimming Identification Rules...")
         df_rules = pd.read_csv(RULES_URL)
         df_rules.columns = [c.strip() for c in df_rules.columns]
         
-        # Group rules by Label into a dictionary of lists
-        # Result: {"ACTOR": ["rule 1", "rule 2"], "CLASS": ["rule A"]}
         rules_map = {}
         if "Label" in df_rules.columns and "Rule" in df_rules.columns:
-            # We filter out empty rules and group by uppercase labels
+            # Group rules, then iterate through each list to strip individual strings
             rules_grouped = df_rules.dropna(subset=['Rule']).groupby('Label')['Rule'].apply(list).to_dict()
-            rules_map = {str(k).strip().upper(): v for k, v in rules_grouped.items()}
+            
+            # Create a cleaned map: Upper case keys and stripped rule strings
+            for label, rules in rules_grouped.items():
+                clean_label = str(label).strip().upper()
+                # TRIMMING HAPPENS HERE:
+                clean_rules = [str(r).strip() for r in rules if str(r).strip()]
+                rules_map[clean_label] = clean_rules
 
-        # 4. Read Labels Sheet
+        # 3. Read Labels Sheet
         print(f"📥 Fetching Labels...")
         df_labels = pd.read_csv(LABELS_URL)
         df_labels.columns = [c.strip() for c in df_labels.columns]
@@ -54,14 +56,14 @@ def generate_strict_definitions():
         entities, relations = [], []
         skipped_items = []
 
-        # 5. Process, Filter, and Map Rules
+        # 4. Process and Map
         for _, row in df_labels.iterrows():
             item_id = str(row["Id"]).strip().upper()
             item_type = str(row["Type"]).strip().capitalize()
             
             get_val = lambda col: str(row[col]).strip() if col in df_labels.columns and pd.notna(row[col]) else ""
             
-            # Extract identification rules from our map (default to empty list if none found)
+            # Fetch the pre-trimmed rules from our map
             id_rules = rules_map.get(item_id, [])
 
             entry = {
@@ -75,7 +77,6 @@ def generate_strict_definitions():
                 "identification_rules": id_rules
             }
 
-            # Strict validation against ontology logic
             if item_type == "Entity":
                 if item_id in allowed_entities:
                     entities.append(entry)
@@ -88,26 +89,23 @@ def generate_strict_definitions():
                 else:
                     skipped_items.append(f"RELATION: {item_id}")
 
-        # 6. Save JSON
+        # 5. Export
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        output_data = {"entities": entities, "relations": relations}
-        
         with open(DEFINITIONS_FILE, "w", encoding="utf-8") as f:
-            json.dump(output_data, f, indent=4, ensure_ascii=False)
+            json.dump({"entities": entities, "relations": relations}, f, indent=4, ensure_ascii=False)
 
-        # 7. Write Log
+        # 6. Logging
         with open(LOG_FILE, "w", encoding="utf-8") as log:
-            log.write(f"Strict Sync Log - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            log.write("="*60 + "\n")
+            log.write(f"Strict Sync Log - {datetime.now()}\n" + "="*60 + "\n")
             if not skipped_items:
-                log.write("✅ All sheet items are valid per ontology.json\n")
+                log.write("✅ All sheet items validated successfully.\n")
             else:
-                log.write(f"⚠️ SKIPPED items (Not in ontology constraints):\n")
+                log.write(f"⚠️ SKIPPED (Not in ontology constraints):\n")
                 for item in skipped_items:
                     log.write(f"❌ {item}\n")
 
-        print(f"✨ Successfully updated {DEFINITIONS_FILE} with Identification Rules.")
-        print(f"📊 Processed {len(entities)} Entities and {len(relations)} Relations.")
+        print(f"✨ Successfully created {DEFINITIONS_FILE}")
+        print(f"✅ Rules have been trimmed for {len(rules_map)} unique labels.")
 
     except Exception as e:
         print(f"❌ Error: {e}")
