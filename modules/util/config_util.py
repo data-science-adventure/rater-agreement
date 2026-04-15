@@ -9,6 +9,7 @@ class MainConfig:
     report_dir: str
     annotators_dir: str
     project_id: int
+    ontology_path: str
 
 
 @dataclass

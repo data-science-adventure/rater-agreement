@@ -9,7 +9,7 @@ from util.config_util import ConfigUtil
 
 config = ConfigUtil.get_config()
 
-ontology = UMLOntology.load_from_json("ontology/ontology.json")
+ontology = UMLOntology.load_from_json(config.main.ontology_path)
 # ==========================================
 # 1. CONFIGURATION & TAXONOMY
 # ==========================================

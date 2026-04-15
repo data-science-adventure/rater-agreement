@@ -2,7 +2,8 @@
     "main": {
         "report_dir": "report",
         "annotators_dir": "annotators",
-        "project_id": 1
+        "project_id": 1,
+        "ontology_path": "/home/daniel/projects/git/organizations/data-science-adventure/llm-benchmark/modules/ontology/ontology.json"
     },
     "compute_cohens_kappa": {
         "main_annotator": "admin.jsonl",
