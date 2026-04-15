@@ -327,56 +327,92 @@ def process_annotations(file1, file2, file3):
 def generate_visualizations(
     kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3
 ):
-    """Genera las 3 visualizaciones solicitadas."""
-    plt.figure(figsize=(18, 5))
+    """Genera visualizaciones de acuerdo y distribución para Entidades y Relaciones."""
+    plt.figure(figsize=(18, 10)) # Aumentamos el alto de la figura para 2 filas
 
+    # ==========================================
+    # FILA 1: ENTIDADES
+    # ==========================================
+    
     # 1. Mapa de Calor de Cohen's Kappa (Entidades)
-    plt.subplot(1, 3, 1)
-    k_12 = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_2"])
-    k_23 = cohen_kappa_score(kappa_data["e_2"], kappa_data["e_3"])
-    k_13 = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_3"])
+    plt.subplot(2, 3, 1)
+    k_12_e = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_2"])
+    k_23_e = cohen_kappa_score(kappa_data["e_2"], kappa_data["e_3"])
+    k_13_e = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_3"])
 
-    kappa_matrix = np.array([[1.0, k_12, k_13], [k_12, 1.0, k_23], [k_13, k_23, 1.0]])
+    kappa_matrix_e = np.array([[1.0, k_12_e, k_13_e], [k_12_e, 1.0, k_23_e], [k_13_e, k_23_e, 1.0]])
     sns.heatmap(
-        kappa_matrix,
-        annot=True,
-        cmap="Blues",
+        kappa_matrix_e, annot=True, cmap="Blues",
         xticklabels=[expert_1, expert_2, expert_3],
-        yticklabels=[expert_1, expert_2, expert_3],
-        vmin=0,
-        vmax=1,
+        yticklabels=[expert_1, expert_2, expert_3], vmin=0, vmax=1
     )
     plt.title("Pairwise Cohen's Kappa (Entities)")
 
-    # 2. Gráfico de Barras de Distribución de Etiquetas
-    plt.subplot(1, 3, 2)
-    df_labels = pd.DataFrame(
-        [{"Expert": expert_1, "Label": l} for l in label_dist["E1"]]
-        + [{"Expert": expert_2, "Label": l} for l in label_dist["E2"]]
-        + [{"Expert": expert_3, "Label": l} for l in label_dist["E3"]]
+    # 2. Gráfico de Barras de Distribución de Etiquetas (Entidades)
+    plt.subplot(2, 3, 2)
+    df_labels_e = pd.DataFrame(
+        [{"Expert": expert_1, "Label": l} for l in label_dist.get("E1", [])]
+        + [{"Expert": expert_2, "Label": l} for l in label_dist.get("E2", [])]
+        + [{"Expert": expert_3, "Label": l} for l in label_dist.get("E3", [])]
     )
 
-    if not df_labels.empty:
-        sns.countplot(data=df_labels, x="Label", hue="Expert", palette="viridis")
-        plt.title("Label Distribution by Expert")
+    if not df_labels_e.empty:
+        sns.countplot(data=df_labels_e, x="Label", hue="Expert", palette="viridis")
+        plt.title("Label Distribution by Expert (Entities)")
         plt.xticks(rotation=45)
 
-    # 3. Gráfico de Pastel de Acuerdos
-    plt.subplot(1, 3, 3)
+    # 3. Gráfico de Pastel de Acuerdos (General)
+    plt.subplot(2, 3, 3)
     labels = list(status_counts.keys())
     sizes = list(status_counts.values())
-    # Filtrar ceros para el gráfico
     labels = [l for l, s in zip(labels, sizes) if s > 0]
     sizes = [s for s in sizes if s > 0]
 
-    plt.pie(
-        sizes,
-        labels=labels,
-        autopct="%1.1f%%",
-        startangle=140,
-        colors=sns.color_palette("pastel"),
+    if sizes:
+        plt.pie(
+            sizes, labels=labels, autopct="%1.1f%%", 
+            startangle=140, colors=sns.color_palette("pastel")
+        )
+        plt.title("Agreement Status Overview (Overall)")
+
+    # ==========================================
+    # FILA 2: RELACIONES
+    # ==========================================
+    
+    # 4. Mapa de Calor de Cohen's Kappa (Relaciones)
+    plt.subplot(2, 3, 4)
+    k_12_r = cohen_kappa_score(kappa_data["r_1"], kappa_data["r_2"])
+    k_23_r = cohen_kappa_score(kappa_data["r_2"], kappa_data["r_3"])
+    k_13_r = cohen_kappa_score(kappa_data["r_1"], kappa_data["r_3"])
+
+    kappa_matrix_r = np.array([[1.0, k_12_r, k_13_r], [k_12_r, 1.0, k_23_r], [k_13_r, k_23_r, 1.0]])
+    sns.heatmap(
+        kappa_matrix_r, annot=True, cmap="Greens", # Usamos verde para diferenciar de entidades
+        xticklabels=[expert_1, expert_2, expert_3],
+        yticklabels=[expert_1, expert_2, expert_3], vmin=0, vmax=1
     )
-    plt.title("Agreement Status Overview")
+    plt.title("Pairwise Cohen's Kappa (Relations)")
+
+    # 5. Gráfico de Barras de Distribución de Etiquetas (Relaciones)
+    plt.subplot(2, 3, 5)
+    # Extraemos etiquetas válidas directamente de kappa_data para no modificar process_annotations
+    rel_l1 = [l for l in kappa_data["r_1"] if l != "NONE"]
+    rel_l2 = [l for l in kappa_data["r_2"] if l != "NONE"]
+    rel_l3 = [l for l in kappa_data["r_3"] if l != "NONE"]
+    
+    df_labels_r = pd.DataFrame(
+        [{"Expert": expert_1, "Label": l} for l in rel_l1]
+        + [{"Expert": expert_2, "Label": l} for l in rel_l2]
+        + [{"Expert": expert_3, "Label": l} for l in rel_l3]
+    )
+
+    if not df_labels_r.empty:
+        sns.countplot(data=df_labels_r, x="Label", hue="Expert", palette="magma")
+        plt.title("Label Distribution by Expert (Relations)")
+        plt.xticks(rotation=45)
+
+    # 6. Ocultamos el último subplot (esquina inferior derecha) para que quede limpio
+    plt.subplot(2, 3, 6).axis('off')
 
     plt.tight_layout()
     plt.savefig(f"{REPORT_OUTPUT}/annotation_report_visuals.png")
