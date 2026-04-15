@@ -79,6 +79,57 @@ def get_consensus(l1, l2, l3):
     # Desempate de 3 vías (Tie-Break) -> Gana el Experto 1
     return l1, "Tie-Broken"
 
+def compute_fleiss_kappa(ratings_lists):
+    """
+    Calcula el coeficiente Kappa de Fleiss para múltiples anotadores.
+    
+    Args:
+        ratings_lists: Una lista de listas, donde cada sublista contiene 
+                       las anotaciones de un experto en el mismo orden.
+                       Ejemplo: [experto1_labels, experto2_labels, experto3_labels]
+    
+    Returns:
+        float: El valor del coeficiente Kappa de Fleiss.
+    """
+    # 1. Transponer las listas para agrupar las anotaciones por cada "sujeto" (item)
+    items = list(zip(*ratings_lists))
+    n_items = len(items)
+    n_raters = len(ratings_lists)
+    
+    if n_items == 0:
+        return 0.0
+        
+    # 2. Identificar todas las categorías únicas utilizadas en las anotaciones
+    categories = set(label for item in items for label in item)
+    category_to_idx = {cat: i for i, cat in enumerate(categories)}
+    n_categories = len(categories)
+    
+    # 3. Construir la matriz de conteos (N items x K categorías)
+    # count_matrix[i][j] = número de anotadores que asignaron la categoría j al item i
+    count_matrix = np.zeros((n_items, n_categories))
+    
+    for i, item in enumerate(items):
+        for label in item:
+            j = category_to_idx[label]
+            count_matrix[i, j] += 1
+            
+    # 4. Calcular el acuerdo observado (P_i) por cada item
+    # Fórmula de la proporción de acuerdo: (sum(n_ij^2) - n) / (n * (n - 1))
+    sum_squares = np.sum(count_matrix * count_matrix, axis=1)
+    p_i = (sum_squares - n_raters) / (n_raters * (n_raters - 1))
+    p_bar = np.mean(p_i)
+    
+    # 5. Calcular el acuerdo esperado por azar (P_e)
+    # Proporción global de asignaciones a cada categoría (p_j)
+    p_j = np.sum(count_matrix, axis=0) / (n_items * n_raters)
+    p_bar_e = np.sum(p_j * p_j)
+    
+    # 6. Calcular el coeficiente Kappa de Fleiss
+    if p_bar_e == 1.0:
+        return 1.0 # Evitar la división por cero en casos de un acuerdo perfecto en una sola categoría
+        
+    kappa = (p_bar - p_bar_e) / (1 - p_bar_e)
+    return kappa
 
 def resolve_relation_offset(rec1, offset):
     return f"{rec1['text'][offset[0]:offset[1]]} -- {rec1['text'][offset[2]:offset[3]]}"
@@ -256,6 +307,17 @@ def process_annotations(file1, file2, file3):
     with open(f"{REPORT_OUTPUT}/gold_standard.jsonl", "w", encoding="utf-8") as f:
         for record in gold_standard:
             f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    # --- Cálculo de Fleiss's Kappa ---
+    fleiss_k_ent = compute_fleiss_kappa([kappa_data["e_1"], kappa_data["e_2"], kappa_data["e_3"]])
+    fleiss_k_rel = compute_fleiss_kappa([kappa_data["r_1"], kappa_data["r_2"], kappa_data["r_3"]])
+    
+    print("\n" + "="*40)
+    print("MÉTRICAS DE ACUERDO GLOBAL (FLEISS'S KAPPA)")
+    print("="*40)
+    print(f"Acuerdo global en Entidades:  {fleiss_k_ent:.4f}")
+    print(f"Acuerdo global en Relaciones: {fleiss_k_rel:.4f}")
+    print("="*40 + "\n")
 
     generate_visualizations(
         kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3
