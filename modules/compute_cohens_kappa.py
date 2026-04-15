@@ -161,7 +161,7 @@ def process_annotations(file1, file2, file3):
                 )
 
             if final_label != "NONE":
-                new_ent_id = f"e{ent_counter}"
+                new_ent_id = ent_counter
                 gold_ent_offset_to_id[offset] = new_ent_id
                 gold_entities.append(
                     {
@@ -207,7 +207,6 @@ def process_annotations(file1, file2, file3):
                 dst_offset = (offset[2], offset[3])
                 # Solo crear la relación si ambas entidades sobrevivieron al Gold Standard
 
-                # Código corregido (Línea 150):
                 if (
                     src_offset in gold_ent_offset_to_id
                     and dst_offset in gold_ent_offset_to_id
@@ -223,8 +222,15 @@ def process_annotations(file1, file2, file3):
         # Construir registro de Gold Standard
         gold_standard.append(
             {
-                "id": rec1["sent_id"],
-                "text": rec1["text"],
+                "id": rec1.get("id"),
+                "text": rec1.get("text"),
+                "type": rec1.get("type"),
+                "labels": rec1.get("labels", []),
+                "source": rec1.get("source"),
+                "tokens": rec1.get("tokens", []),
+                "sent_id": rec1.get("sent_id"),
+                "Comments": rec1.get("Comments", []),
+                "project_id": rec1.get("project_id"),
                 "entities": gold_entities,
                 "relations": gold_relations,
             }
@@ -235,8 +241,8 @@ def process_annotations(file1, file2, file3):
         conflicts,
         columns=[
             "sentence_id",
-            "type",
             "text",
+            "type",
             "offsets",
             "has_blanks",
             expert_1,
