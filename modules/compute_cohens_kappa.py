@@ -194,8 +194,8 @@ def process_annotations(file1, file2, file3):
             final_label, status = get_consensus(lbl1, lbl2, lbl3)
             status_counts[status] += 1
 
+            span_text = rec1["text"][offset[0] : offset[1]]
             if status != "Unanimous":
-                span_text = rec1["text"][offset[0] : offset[1]]
                 conflicts.append(
                     [
                         rec1["sent_id"],
@@ -217,6 +217,7 @@ def process_annotations(file1, file2, file3):
                 gold_entities.append(
                     {
                         "id": new_ent_id,
+                        "text": span_text,
                         "label": final_label,
                         "start_offset": offset[0],
                         "end_offset": offset[1],
