@@ -2,8 +2,11 @@
     "main": {
         "report_dir": "report",
         "annotators_dir": "annotators",
-        "project_id": 1,
+        "project_id": 2,
         "ontology_path": "/home/daniel/projects/git/organizations/data-science-adventure/llm-benchmark/modules/ontology/ontology.json"
+    },
+    "init_doccano_labels": {
+        "exclude_members": ["admin", "marcos", "heidi"]
     },
     "compute_cohens_kappa": {
         "main_annotator": "admin.jsonl",

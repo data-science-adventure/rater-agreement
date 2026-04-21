@@ -274,13 +274,13 @@ def process_annotations(file1, file2, file3):
         # Construir registro de Gold Standard
         gold_standard.append(
             {
+                "sent_id": rec1.get("sent_id"),
                 "id": rec1.get("id"),
                 "text": rec1.get("text"),
                 "type": rec1.get("type"),
                 "labels": rec1.get("labels", []),
                 "source": rec1.get("source"),
                 "tokens": rec1.get("tokens", []),
-                "sent_id": rec1.get("sent_id"),
                 "Comments": rec1.get("Comments", []),
                 "project_id": rec1.get("project_id"),
                 "entities": gold_entities,

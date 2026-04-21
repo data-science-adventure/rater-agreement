@@ -11,6 +11,9 @@ class MainConfig:
     project_id: int
     ontology_path: str
 
+@dataclass
+class InitDoccanoLabelsConfig:
+    exclude_members: List[str] = field(default_factory=list)
 
 @dataclass
 class CohenKappaConfig:
@@ -44,6 +47,7 @@ class ValidateUmlConfig:
 @dataclass
 class ProjectConfig:
     main: MainConfig
+    init_doccano_labels: Optional[InitDoccanoLabelsConfig] = None
     compute_cohens_kappa: Optional[CohenKappaConfig] = None
     download_expert_report: Optional[DownloadExpertReportConfig] = None
     upload_report: Optional[UploadConfig] = None
@@ -68,6 +72,10 @@ class ConfigUtil:
 
         # 1. Map 'main' (Required)
         main_obj = MainConfig(**data["main"])
+
+        labels_data = data.get("init_doccano_labels")
+        labels_obj = InitDoccanoLabelsConfig(**labels_data) if labels_data else None
+
 
         # 2. Map 'compute_cohens_kappa'
         kappa_data = data.get("compute_cohens_kappa")
@@ -104,6 +112,7 @@ class ConfigUtil:
         # 7. Return the composite object
         return ProjectConfig(
             main=main_obj,
+            init_doccano_labels=labels_obj,
             compute_cohens_kappa=kappa_obj,
             download_expert_report=expert_obj,
             upload_report=upload_obj,

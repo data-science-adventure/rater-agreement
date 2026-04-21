@@ -4,7 +4,7 @@ import time
 
 def run_pipeline():
     scripts = [
-        #"modules/download_report.py",
+        "modules/download_report.py",
         "modules/download_expert_report.py",
         "modules/compute_cohens_kappa.py",
         "modules/validate_schema.py",
