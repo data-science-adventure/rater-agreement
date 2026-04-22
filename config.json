@@ -2,7 +2,7 @@
     "main": {
         "report_dir": "report",
         "annotators_dir": "annotators",
-        "project_id": 2,
+        "project_id": 1,
         "ontology_path": "/home/daniel/projects/git/organizations/data-science-adventure/llm-benchmark/modules/ontology/ontology.json"
     },
     "init_doccano_labels": {
@@ -23,6 +23,8 @@
         "credentials_file": "credentials.json",
         "files_to_upload": [
             "report/conflict_report.csv",
+            "report/fleiss_kappa.csv",
+            "report/gold_standard.jsonl",
             "report/annotation_report_visuals.png",
             "report/members_progress.png",
             "report/schema_errors_admin.csv",
