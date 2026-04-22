@@ -278,7 +278,6 @@ def process_annotations(file1, file2, file3):
         gold_standard.append(
             {
                 "sent_id": rec1.get("sent_id"),
-                "id": rec1.get("id"),
                 "text": rec1.get("text"),
                 "type": rec1.get("type"),
                 "labels": rec1.get("labels", []),
@@ -288,6 +287,7 @@ def process_annotations(file1, file2, file3):
                 "project_id": rec1.get("project_id"),
                 "entities": gold_entities,
                 "relations": gold_relations,
+                "id": rec1.get("id"),
             }
         )
 
