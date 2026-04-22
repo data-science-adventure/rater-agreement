@@ -8,6 +8,7 @@ from collections import Counter
 from pathlib import Path
 from dotenv import load_dotenv
 from util.config_util import ConfigUtil
+import csv
 
 ## Load dotenv and configuration file
 
@@ -199,6 +200,7 @@ def process_annotations(file1, file2, file3):
                 conflicts.append(
                     [
                         rec1["sent_id"],
+                        rec1["text"],
                         span_text,
                         "Entity",
                         offset,
@@ -242,6 +244,7 @@ def process_annotations(file1, file2, file3):
                 conflicts.append(
                     [
                         rec1["sent_id"],
+                        rec1["text"],
                         resolve_relation_offset(rec1, offset),
                         "Relation",
                         offset,
@@ -293,6 +296,7 @@ def process_annotations(file1, file2, file3):
         conflicts,
         columns=[
             "sentence_id",
+            "sentence_text",
             "text",
             "type",
             "offsets",
@@ -313,6 +317,12 @@ def process_annotations(file1, file2, file3):
     fleiss_k_ent = compute_fleiss_kappa([kappa_data["e_1"], kappa_data["e_2"], kappa_data["e_3"]])
     fleiss_k_rel = compute_fleiss_kappa([kappa_data["r_1"], kappa_data["r_2"], kappa_data["r_3"]])
     
+    with open(f"{REPORT_OUTPUT}/fleiss_kappa.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["type", "value"])
+        writer.writeheader()
+        writer.writerow({"type":"Entities", "value": fleiss_k_ent})
+        writer.writerow({"type":"Relations", "value": fleiss_k_rel})
+
     print("\n" + "="*40)
     print("MÉTRICAS DE ACUERDO GLOBAL (FLEISS'S KAPPA)")
     print("="*40)
