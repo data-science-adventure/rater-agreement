@@ -138,18 +138,32 @@ def generate_gold_standard_latex_report():
         return rf"""
     \begin{{axis}}[
         title={{{title}}},
-        ybar, width=0.48\textwidth, height={height},
         symbolic x coords={{{labels}}}, xtick=data,
-        xticklabel style={{rotate=45, anchor=east, font=\tiny}},
-        ylabel={{Count}}, ymin=0,
-        nodes near coords, every node near coord/.append style={{font=\tiny}},
-        bar width=12pt, fill={color}, draw=none
+        compact_plot
     ]
-        \addplot coordinates {{{coords}}};
+        \addplot [fill=barBlue, draw=none] coordinates {{{coords}}};
     \end{{axis}}"""
 
     # 3. Assemble LaTeX
     tex_content = [
+        r"\definecolor{barBlue}{RGB}{53, 133, 151}",
+        r"\pgfplotsset{",
+        r"    compact_plot/.style={",
+        r"        ybar, ",
+        r"        width=0.48\textwidth, ",
+        r"        height=4.5cm,",
+        r"        bar width=7pt,",
+        r"        xtick=data,",
+        r"        xticklabel style={rotate=45, anchor=east, font=\tiny},",
+        r"        ylabel={}, ymin=0,",
+        r"        axis x line*=bottom,",
+        r"        axis y line*=left,",
+        r"        ymajorgrids=true,",
+        r"        grid style={dashed, gray!30},",
+        r"        nodes near coords, every node near coord/.append style={font=\tiny},",
+        r"        bar width=12pt, fill={rgb:red,1;green,2;blue,3}, draw=none",
+        r"    }",
+        r"}",
         r"\begin{tikzpicture}",
         get_bar_chart("Entity Distribution", ent_data, "{rgb:red,1;green,2;blue,3}"),
         rf"\begin{{scope}}[shift={{(0.52\textwidth,0)}}]",
