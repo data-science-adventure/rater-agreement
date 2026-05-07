@@ -399,6 +399,139 @@ def export_visualizations_to_csv(kappa_data, label_dist, status_counts, expert_1
 
     print(f"✅ CSVs generados con conteos totales en: {csv_path}")
 
+def export_kappa_to_latex(kappa_data, expert_1, expert_2, expert_3):
+    """
+    Genera un archivo .tex con heatmaps compactos.
+    Se corrigió el error de PGF Math usando \rawvalue para la comparación de color.
+    """
+    output_path = f"{REPORT_OUTPUT}/kappa_csv"
+    os.makedirs(output_path, exist_ok=True)
+    
+    # Escapar nombres para LaTeX
+    experts_tex = [e.replace("_", "\\_") for e in [expert_1, expert_2, expert_3]]
+    
+    def get_kappas(prefix):
+        return {
+            (0, 1): cohen_kappa_score(kappa_data[f"{prefix}_1"], kappa_data[f"{prefix}_2"]),
+            (1, 2): cohen_kappa_score(kappa_data[f"{prefix}_2"], kappa_data[f"{prefix}_3"]),
+            (0, 2): cohen_kappa_score(kappa_data[f"{prefix}_1"], kappa_data[f"{prefix}_3"]),
+        }
+
+    k_e = get_kappas("e")
+    k_r = get_kappas("r")
+
+    def generate_table_data(k_dict):
+        lines = ["    X                  Y              C"]
+        for i in range(3):
+            for j in range(3):
+                val = 1.0 if i == j else k_dict[tuple(sorted((i, j)))]
+                lines.append(f"    {{{experts_tex[i]}}}   {{{experts_tex[j]}}}        {val:.4f}")
+        return "\n".join(lines)
+
+    latex_template = r"""
+\pgfplotsset{
+    compact_heatmap/.style={
+        scale only axis,
+        width=2.5cm, 
+        height=2.5cm,
+        axis on top,
+        shader=flat corner,
+        enlargelimits=false,
+        tick style={draw=none},
+        axis line style={draw=none},
+        colormap={invertedviridis}{rgb255=(253,231,37) rgb255=(33,145,140) rgb255=(68,1,84)},
+        symbolic x coords={""" + f"{{{experts_tex[0]}}}, {{{experts_tex[1]}}}, {{{experts_tex[2]}}}" + r"""},
+        symbolic y coords={""" + f"{{{experts_tex[0]}}}, {{{experts_tex[1]}}}, {{{experts_tex[2]}}}" + r"""},
+        xtick=data, 
+        ytick=data,
+        xticklabel style={
+            rotate=60, 
+            anchor=east, 
+            font=\small,
+        },
+        yticklabel style={
+            font=\small,
+            xshift=-0.8cm
+        },
+        point meta min=0, point meta max=1,
+    }
+}
+
+\begin{tikzpicture}
+% --- ENTITIES ---
+\begin{axis}[
+    compact_heatmap,
+    title={\small Entities},
+    y dir=reverse,
+    clip=false,
+    name=left_plot
+]
+\addplot [
+    matrix plot*, 
+    draw=white, 
+    line width=0.2pt, 
+    point meta=explicit,
+    mesh/cols=3,
+    visualization depends on=\thisrow{C} \as \rawvalue,
+    nodes near coords={\pgfmathprintnumber[fixed,precision=2]{\rawvalue}},
+    nodes near coords style={
+        anchor=center,
+        font=\footnotesize\bfseries,
+        execute at begin node={
+            \pgfmathparse{\rawvalue < 0.5 ? 1 : 0}
+            \ifnum\pgfmathresult=1 \pgfkeysalso{/tikz/text=black} \else \pgfkeysalso{/tikz/text=white} \fi
+        }
+    }
+] table [header=has colnames, meta=C] {
+""" + generate_table_data(k_e) + r"""
+};
+\end{axis}
+
+% --- RELATIONS ---
+\begin{axis}[
+    compact_heatmap,
+    title={\small Relations},
+    at={(left_plot.north east)},
+    anchor=north west,
+    xshift=2cm,
+    clip=false,
+    y dir=reverse,
+    yticklabels={,,},
+    yticklabel style={opacity=0},
+    colorbar,
+    colorbar style={
+        height=2.3cm,
+        width=0.25cm,
+        yticklabel style={font=\tiny},
+    }
+]
+\addplot [
+    matrix plot*, 
+    draw=white, 
+    line width=0.2pt, 
+    point meta=explicit, 
+    mesh/cols=3,
+    visualization depends on=\thisrow{C} \as \rawvalue,
+    nodes near coords={\pgfmathprintnumber[fixed,precision=2]{\rawvalue}},
+    nodes near coords style={
+        anchor=center,
+        font=\footnotesize\bfseries,
+        execute at begin node={
+            \pgfmathparse{\rawvalue < 0.5 ? 1 : 0}
+            \ifnum\pgfmathresult=1 \pgfkeysalso{/tikz/text=black} \else \pgfkeysalso{/tikz/text=white} \fi
+        }
+    }
+] table [header=has colnames, meta=C] {
+""" + generate_table_data(k_r) + r"""
+};
+\end{axis}
+\end{tikzpicture}
+"""
+
+    with open(f"{output_path}/kappa_entities_relations.tex", "w", encoding="utf-8") as f:
+        f.write(latex_template)
+    print(f"✅ Archivo LaTeX corregido en: {output_path}")
+
 def generate_visualizations(
     kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3
 ):
@@ -492,7 +625,7 @@ def generate_visualizations(
     plt.tight_layout()
     plt.savefig(f"{REPORT_OUTPUT}/annotation_report_visuals.png")
     export_visualizations_to_csv(kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3)
-    plt.show()
+    export_kappa_to_latex(kappa_data, expert_1, expert_2, expert_3)
 
 
 def extract_expert_names_from_path(file1, file2, file3):
