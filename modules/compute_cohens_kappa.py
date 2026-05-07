@@ -1,3 +1,5 @@
+import os
+import csv
 import json
 import pandas as pd
 import numpy as np
@@ -8,7 +10,6 @@ from collections import Counter
 from pathlib import Path
 from dotenv import load_dotenv
 from util.config_util import ConfigUtil
-import csv
 
 ## Load dotenv and configuration file
 
@@ -334,6 +335,69 @@ def process_annotations(file1, file2, file3):
         kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3
     )
 
+def export_visualizations_to_csv(kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3):
+    """Exporta los datos de las métricas a archivos CSV con conteos agregados."""
+    
+    # Asegurar que el directorio existe
+    csv_path = f"{REPORT_OUTPUT}/kappa_csv"
+    os.makedirs(csv_path, exist_ok=True)
+    
+    experts = [expert_1, expert_2, expert_3]
+
+    # 1. Exportar Matrices de Kappa (Entidades y Relaciones)
+    # Entidades
+    k_12_e = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_2"])
+    k_23_e = cohen_kappa_score(kappa_data["e_2"], kappa_data["e_3"])
+    k_13_e = cohen_kappa_score(kappa_data["e_1"], kappa_data["e_3"])
+    pd.DataFrame({
+        expert_1: [1.0, k_12_e, k_13_e],
+        expert_2: [k_12_e, 1.0, k_23_e],
+        expert_3: [k_13_e, k_23_e, 1.0]
+    }, index=experts).to_csv(f"{csv_path}/kappa_entities.csv")
+
+    # Relaciones
+    k_12_r = cohen_kappa_score(kappa_data["r_1"], kappa_data["r_2"])
+    k_23_r = cohen_kappa_score(kappa_data["r_2"], kappa_data["r_3"])
+    k_13_r = cohen_kappa_score(kappa_data["r_1"], kappa_data["r_3"])
+    pd.DataFrame({
+        expert_1: [1.0, k_12_r, k_13_r],
+        expert_2: [k_12_r, 1.0, k_23_r],
+        expert_3: [k_13_r, k_23_r, 1.0]
+    }, index=experts).to_csv(f"{csv_path}/kappa_relations.csv")
+
+    # 2. Exportar Distribución de Etiquetas (Entidades) - CONTEO AGREGADO
+    df_labels_e_raw = pd.DataFrame(
+        [{"Expert": expert_1, "Label": l} for l in label_dist.get("E1", [])]
+        + [{"Expert": expert_2, "Label": l} for l in label_dist.get("E2", [])]
+        + [{"Expert": expert_3, "Label": l} for l in label_dist.get("E3", [])]
+    )
+    
+    if not df_labels_e_raw.empty:
+        # Agrupamos por Expert y Label y contamos las ocurrencias
+        df_labels_e_counts = df_labels_e_raw.groupby(["Expert", "Label"]).size().reset_index(name="Count")
+        df_labels_e_counts.to_csv(f"{csv_path}/labels_distribution_entities.csv", index=False)
+
+    # 3. Exportar Distribución de Etiquetas (Relaciones) - CONTEO AGREGADO
+    rel_l1 = [l for l in kappa_data["r_1"] if l != "NONE"]
+    rel_l2 = [l for l in kappa_data["r_2"] if l != "NONE"]
+    rel_l3 = [l for l in kappa_data["r_3"] if l != "NONE"]
+    
+    df_labels_r_raw = pd.DataFrame(
+        [{"Expert": expert_1, "Label": l} for l in rel_l1]
+        + [{"Expert": expert_2, "Label": l} for l in rel_l2]
+        + [{"Expert": expert_3, "Label": l} for l in rel_l3]
+    )
+
+    if not df_labels_r_raw.empty:
+        # Agrupamos por Expert y Label y contamos las ocurrencias
+        df_labels_r_counts = df_labels_r_raw.groupby(["Expert", "Label"]).size().reset_index(name="Count")
+        df_labels_r_counts.to_csv(f"{csv_path}/labels_distribution_relations.csv", index=False)
+
+    # 4. Exportar Resumen de Acuerdos
+    df_status = pd.DataFrame(list(status_counts.items()), columns=['Status', 'Count'])
+    df_status.to_csv(f"{csv_path}/agreement_status_summary.csv", index=False)
+
+    print(f"✅ CSVs generados con conteos totales en: {csv_path}")
 
 def generate_visualizations(
     kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3
@@ -427,6 +491,7 @@ def generate_visualizations(
 
     plt.tight_layout()
     plt.savefig(f"{REPORT_OUTPUT}/annotation_report_visuals.png")
+    export_visualizations_to_csv(kappa_data, label_dist, status_counts, expert_1, expert_2, expert_3)
     plt.show()
 
 

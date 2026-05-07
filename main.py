@@ -9,7 +9,7 @@ def run_pipeline():
         "modules/compute_cohens_kappa.py",
         "modules/validate_schema.py",
         "modules/validate_uml_structure.py",
-        "modules/upload_report.py",
+        #"modules/upload_report.py",
         #"modules/notify_results.py"
     ]
 
