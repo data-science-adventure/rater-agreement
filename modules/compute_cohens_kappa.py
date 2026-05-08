@@ -407,8 +407,13 @@ def export_kappa_to_latex(kappa_data, expert_1, expert_2, expert_3):
     output_path = f"{REPORT_OUTPUT}/kappa_csv"
     os.makedirs(output_path, exist_ok=True)
     
-    # Escapar nombres para LaTeX
-    experts_tex = [e.replace("_", "\\_") for e in [expert_1, expert_2, expert_3]]
+    name_mapping = {
+        expert_1: "Expert A",
+        expert_2: "Expert B",
+        expert_3: "Expert C"
+    }
+
+    experts_tex = [name_mapping.get(e, e).replace("_", "\\_") for e in [expert_1, expert_2, expert_3]]
     
     def get_kappas(prefix):
         return {
