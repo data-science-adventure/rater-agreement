@@ -8,6 +8,7 @@ def run_pipeline():
         "modules/download_expert_report.py",
         "modules/compute_cohens_kappa.py",
         "modules/gold_standard_report.py",
+        "modules/generate_entity_report.py",
         "modules/validate_schema.py",
         "modules/validate_uml_structure.py",
         #"modules/upload_report.py",
