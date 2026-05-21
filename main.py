@@ -11,8 +11,8 @@ def run_pipeline():
         "modules/generate_entity_report.py",
         "modules/validate_schema.py",
         "modules/validate_uml_structure.py",
-        #"modules/upload_report.py",
-        #"modules/notify_results.py"
+        "modules/upload_report.py",
+        "modules/notify_results.py"
     ]
 
     print(f"🚀 Starting Pipeline at {time.strftime('%Y-%m-%d %H:%M:%S')}")
